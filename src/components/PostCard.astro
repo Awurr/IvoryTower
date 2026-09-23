@@ -1,0 +1,50 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Bracket from './Bracket.astro';
+import FormattedDate from './FormattedDate.astro';
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+	/** Highlight with a holo "new" tag instead of the post's first topic */
+	isNew?: boolean;
+}
+
+const { post, isNew = false } = Astro.props;
+const tag = isNew ? 'new' : post.data.tags[0];
+---
+
+<a class="card glow-panel glow-v" href={`/blog/${post.id}/`}>
+	{tag && <Bracket class="tag" variant={isNew ? 'holo' : 'plain'}>{tag}</Bracket>}
+	<h3>{post.data.title}</h3>
+	<p>{post.data.description}</p>
+	<FormattedDate date={post.data.pubDate} />
+</a>
+<style>
+	.card {
+		display: block;
+		padding: 1.25rem;
+		text-decoration: none;
+	}
+	.card :global(.tag) {
+		display: inline-block;
+		margin-bottom: 0.75rem;
+	}
+	h3 {
+		margin: 0 0 0.5rem;
+		font-size: 1.1rem;
+	}
+	.card:hover h3 {
+		text-decoration: underline;
+		text-decoration-color: var(--border-line);
+		text-underline-offset: 3px;
+	}
+	p {
+		color: var(--text-subtle);
+		font-size: 0.9rem;
+		margin: 0 0 0.75rem;
+	}
+	.card :global(time) {
+		color: #777;
+		font-size: 0.8rem;
+	}
+</style>

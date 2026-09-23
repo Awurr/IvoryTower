@@ -14,6 +14,8 @@ const blog = defineCollection({
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
+			// Shown as bracket tags on post cards and in "Browse by topic"
+			tags: z.array(z.string()).default([]),
 		}),
 });
 

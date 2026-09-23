@@ -1,0 +1,28 @@
+---
+// Bracket button/tag: [3px line][3px gap][box][3px gap][3px line].
+// Renders an <a> when given href, a <button> for size="button", else a <span>.
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props {
+	variant?: 'holo' | 'plain';
+	size?: 'button' | 'tag';
+	href?: string;
+	type?: HTMLAttributes<'button'>['type'];
+	class?: string;
+}
+
+const { variant = 'holo', size = 'tag', href, type = 'button', class: className } = Astro.props;
+const Tag = href ? 'a' : size === 'button' ? 'button' : 'span';
+---
+
+<Tag
+	href={href}
+	type={Tag === 'button' ? type : undefined}
+	class:list={[{ 'btn-reset': Tag !== 'span' }, className]}
+>
+	<span class:list={['bracket', size === 'button' ? 'btn-bracket' : 'tag-bracket']}>
+		<span class="bracket-line"></span>
+		<span class:list={['bracket-box', variant]}><span><slot /></span></span>
+		<span class="bracket-line"></span>
+	</span>
+</Tag>
