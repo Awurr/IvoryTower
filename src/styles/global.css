@@ -16,7 +16,7 @@
 	--plain-text: #cacaca;
 	--font-display: 'Fraunces', Georgia, serif;
 	--font-body: 'Lora', Georgia, serif;
-	/* Static fallbacks; src/scripts/holo.ts animates these per element */
+	/* Static fallbacks; src/scripts/holo.js animates these per element */
 	--sheen-shift: -100;
 	--holo-bg: linear-gradient(100deg, #ffb3d1, #ffe28a, #3dff9a, #7fd8ff, #c9a8ff);
 	color-scheme: dark;
@@ -80,7 +80,7 @@ body {
 
 /* Holographic shimmer: ONE continuous gradient, rebuilt each frame in JS and
    laid across the whole page, so every element is a window onto the same sheet.
-   src/scripts/holo.ts sets each element's image, size and position inline; these
+   src/scripts/holo.js sets each element's image, size and position inline; these
    rules are the no-JS fallback. No tiling = no seams. Never put a CSS `filter`
    on these elements. Keep the selector list in sync with HOLO_SELECTOR. */
 .holo,

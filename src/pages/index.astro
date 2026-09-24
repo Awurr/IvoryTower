@@ -67,10 +67,9 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 	}
 
 	<section class="about glow-panel glow-h">
-		<h2 class="holo-text">About me</h2>
-		<!-- TODO: write the home-page about blurb -->
-		<p>A few sentences about who I am and what this blog is for will go here.</p>
-		<Bracket size="button" href="/about">More about me</Bracket>
+		<h2 class="holo-text">About this website</h2>
+		<p>Hi! I'm <i>Nora (she/they)</i> and this is my blog, <i>Ivory Tower</i>. I made this website to escape social media and to have real discussions about the digital world.</p>
+		<Bracket size="button" href="/about">More about my blog</Bracket>
 	</section>
 
 	{
@@ -86,8 +85,7 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		)
 	}
 
-	<!-- TODO: placeholder closing line before the footer -->
-	<p class="closing">A closing line will go here.</p>
+	<p class="closing">From me, to you. &lt;3</p>
 </BaseLayout>
 <style>
 	.hero {
