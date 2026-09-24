@@ -15,7 +15,10 @@ const blog = defineCollection({
 			// Transform string to Date object
 			pubDate: z.coerce.date(),
 			updatedDate: z.coerce.date().optional(),
+			// Social-preview image; also shown as the hero when there's no heroArt
 			heroImage: z.optional(image()),
+			// Two-layer pixel art (see HeroArt.astro): gray layer under a holo layer
+			heroArt: z.optional(z.object({ gray: image(), holo: image() })),
 			// Shown as bracket tags on post cards and in "Browse by topic"
 			tags: z.array(z.string()).default([]),
 			// One per post; each category gets its own filter tab on /blog

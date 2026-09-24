@@ -1,0 +1,61 @@
+---
+// Two-layer pixel art: each PNG is used only as a mask (just its transparency
+// matters), filled with the site's gray and the shared holo shimmer.
+// By default scaled by whole numbers only (up to 3x, where one art pixel = the
+// 3px rule width) so pixels stay even; never cropped. `fill` stretches it to the
+// full container width instead: edges stay hard, but pixel sizes can vary by 1px.
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+	gray: ImageMetadata;
+	holo: ImageMetadata;
+	fill?: boolean;
+	class?: string;
+}
+
+const { gray, holo, fill = false, class: className } = Astro.props;
+---
+
+<div class:list={['hero-art', { fill }, className]} aria-hidden="true">
+	<div class="art" style={`--art-w: ${gray.width}px; --art-ratio: ${gray.width} / ${gray.height};`}>
+		<div class="layer gray" style={`--mask: url(${gray.src})`}></div>
+		<!-- Later in source order, so it paints on top of the gray layer -->
+		<div class="layer holo" style={`--mask: url(${holo.src})`}></div>
+	</div>
+</div>
+
+<style>
+	/* The wrapper is the size container; .art picks its width from it */
+	.hero-art {
+		container-type: inline-size;
+	}
+	.art {
+		display: grid;
+		margin-inline: auto;
+		aspect-ratio: var(--art-ratio);
+		/* Fallback for browsers without round(): fit the column (may blur slightly) */
+		width: min(100%, calc(var(--art-w) * 3));
+		/* Largest whole multiple of the art width that fits, capped at 3x.
+		   If even 1x doesn't fit (very narrow phones), shrink to fit instead. */
+		width: min(
+			100cqw,
+			max(var(--art-w), round(down, min(100cqw, calc(var(--art-w) * 3)), var(--art-w)))
+		);
+	}
+	.fill .art {
+		width: 100%;
+	}
+	.layer {
+		grid-area: 1 / 1;
+		image-rendering: pixelated;
+		-webkit-mask-image: var(--mask);
+		mask-image: var(--mask);
+		-webkit-mask-size: 100% 100%;
+		mask-size: 100% 100%;
+		-webkit-mask-repeat: no-repeat;
+		mask-repeat: no-repeat;
+	}
+	.gray {
+		background: var(--border-line);
+	}
+</style>

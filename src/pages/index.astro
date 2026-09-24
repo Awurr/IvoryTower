@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Bracket from '../components/Bracket.astro';
 import FormattedDate from '../components/FormattedDate.astro';
+import HeroArt from '../components/HeroArt.astro';
 import PostCard from '../components/PostCard.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -13,11 +14,13 @@ const posts = (await getCollection('blog')).sort(
 );
 const [latest, ...rest] = posts;
 const recent = rest.slice(0, 3);
+// Size the latest-post column so its hero art fits at exactly 2x
+const latestWidth = latest?.data.heroArt ? `${latest.data.heroArt.gray.width * 2}px` : undefined;
 const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<section class="hero">
+	<section class="hero" style={latestWidth && `--latest-w: ${latestWidth}`}>
 		<div class="intro glow-panel glow-h">
 			<h1 class="holo-text">ivory tower</h1>
 			<p>{SITE_DESCRIPTION}</p>
@@ -27,10 +30,16 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 			latest && (
 				<article class="latest glow-panel glow-h">
 					<Bracket class="latest-tag">latest</Bracket>
-					{latest.data.heroImage && (
-						<a href={postUrl(latest)} tabindex="-1" aria-hidden="true">
-							<Image width={720} height={360} src={latest.data.heroImage} alt="" />
+					{latest.data.heroArt ? (
+						<a class="latest-art" href={postUrl(latest)} tabindex="-1" aria-hidden="true">
+							<HeroArt gray={latest.data.heroArt.gray} holo={latest.data.heroArt.holo} />
 						</a>
+					) : (
+						latest.data.heroImage && (
+							<a href={postUrl(latest)} tabindex="-1" aria-hidden="true">
+								<Image width={720} height={360} src={latest.data.heroImage} alt="" />
+							</a>
+						)
 					)}
 					<FormattedDate date={latest.data.pubDate} />
 					<h2>
@@ -83,7 +92,7 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 <style>
 	.hero {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+		grid-template-columns: minmax(0, 1fr) minmax(0, var(--latest-w, 1.15fr));
 		gap: 2.5rem;
 		align-items: center;
 		margin-bottom: 4rem;
@@ -109,6 +118,10 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 	}
 	.latest img {
 		width: 100%;
+		margin-bottom: 1rem;
+	}
+	.latest-art {
+		display: block;
 		margin-bottom: 1rem;
 	}
 	.latest :global(time) {
