@@ -2,19 +2,18 @@
 import type { CollectionEntry } from 'astro:content';
 import Bracket from './Bracket.astro';
 import FormattedDate from './FormattedDate.astro';
+import { postUrl } from '../lib/posts';
 
 interface Props {
 	post: CollectionEntry<'blog'>;
-	/** Highlight with a holo "new" tag instead of the post's first topic */
-	isNew?: boolean;
 }
 
-const { post, isNew = false } = Astro.props;
-const tag = isNew ? 'new' : post.data.tags[0];
+const { post } = Astro.props;
+const tag = post.data.tags[0];
 ---
 
-<a class="card glow-panel glow-v" href={`/blog/${post.id}/`}>
-	{tag && <Bracket class="tag" variant={isNew ? 'holo' : 'plain'}>{tag}</Bracket>}
+<a class="card glow-panel glow-v" href={postUrl(post)}>
+	{tag && <Bracket class="tag" variant="plain">{tag}</Bracket>}
 	<h3>{post.data.title}</h3>
 	<p>{post.data.description}</p>
 	<FormattedDate date={post.data.pubDate} />

@@ -9,6 +9,8 @@ const blog = defineCollection({
 	schema: ({ image }) =>
 		z.object({
 			title: z.string(),
+			// Shown under the title on the post page only
+			subtitle: z.string().optional(),
 			description: z.string(),
 			// Transform string to Date object
 			pubDate: z.coerce.date(),
@@ -16,6 +18,8 @@ const blog = defineCollection({
 			heroImage: z.optional(image()),
 			// Shown as bracket tags on post cards and in "Browse by topic"
 			tags: z.array(z.string()).default([]),
+			// One per post; each category gets its own filter tab on /blog
+			category: z.string().optional(),
 		}),
 });
 

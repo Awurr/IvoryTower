@@ -1,33 +1,68 @@
 ---
+import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import Bracket from '../components/Bracket.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import PostCard from '../components/PostCard.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { postUrl } from '../lib/posts';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
-const recent = posts.slice(0, 6);
+const [latest, ...rest] = posts;
+const recent = rest.slice(0, 3);
 const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<section class="hero">
-		<h1 class="holo-text">ivory tower</h1>
-		<p>{SITE_DESCRIPTION}</p>
-		<div class="btn-row">
-			{posts[0] && (
-				<Bracket size="button" href={`/blog/${posts[0].id}/`}>Read the latest</Bracket>
-			)}
-			<Bracket size="button" href="/blog">All writing</Bracket>
+		<div class="intro glow-panel glow-h">
+			<h1 class="holo-text">ivory tower</h1>
+			<p>{SITE_DESCRIPTION}</p>
 		</div>
+
+		{
+			latest && (
+				<article class="latest glow-panel glow-h">
+					<Bracket class="latest-tag">latest</Bracket>
+					{latest.data.heroImage && (
+						<a href={postUrl(latest)} tabindex="-1" aria-hidden="true">
+							<Image width={720} height={360} src={latest.data.heroImage} alt="" />
+						</a>
+					)}
+					<FormattedDate date={latest.data.pubDate} />
+					<h2>
+						<a href={postUrl(latest)}>{latest.data.title}</a>
+					</h2>
+					<p>{latest.data.description}</p>
+					<Bracket size="button" href={postUrl(latest)}>Read the latest</Bracket>
+				</article>
+			)
+		}
 	</section>
 
-	<h2 class="section-title holo-text">Recent writing</h2>
-	<div class="grid">
-		{recent.map((post, i) => <PostCard post={post} isNew={i === 0} />)}
-	</div>
+	{
+		recent.length > 0 && (
+			<section class="recent">
+				<div class="section-head">
+					<h2 class="section-title holo-text">Recent writing</h2>
+					<Bracket size="button" href="/blog">All writing</Bracket>
+				</div>
+				<div class="grid">
+					{recent.map((post) => <PostCard post={post} />)}
+				</div>
+			</section>
+		)
+	}
+
+	<section class="about glow-panel glow-h">
+		<h2 class="holo-text">About me</h2>
+		<!-- TODO: write the home-page about blurb -->
+		<p>A few sentences about who I am and what this blog is for will go here.</p>
+		<Bracket size="button" href="/about">More about me</Bracket>
+	</section>
 
 	{
 		topics.length > 0 && (
@@ -41,24 +76,70 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 			</>
 		)
 	}
+
+	<!-- TODO: placeholder closing line before the footer -->
+	<p class="closing">A closing line will go here.</p>
 </BaseLayout>
 <style>
 	.hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+		gap: 2.5rem;
+		align-items: center;
 		margin-bottom: 4rem;
 	}
-	.hero h1 {
+	.intro {
+		padding: 1.5rem 0;
+	}
+	.intro h1 {
 		margin: 0 0 0.75rem;
 	}
-	.hero p {
+	.intro p {
 		color: var(--text-muted);
 		font-size: 1.05rem;
 		max-width: 40ch;
-		margin: 0 0 2rem;
+		margin: 0;
 	}
-	.btn-row {
+	.latest {
+		padding: 1.5rem 0;
+	}
+	.latest :global(.latest-tag) {
+		display: inline-block;
+		margin-bottom: 1rem;
+	}
+	.latest img {
+		width: 100%;
+		margin-bottom: 1rem;
+	}
+	.latest :global(time) {
+		color: var(--text-faint);
+		font-size: 0.85rem;
+	}
+	.latest h2 {
+		font-size: 1.6rem;
+		margin: 0.25rem 0 0.5rem;
+	}
+	.latest h2 a {
+		text-decoration: none;
+	}
+	.latest h2 a:hover {
+		text-decoration: underline;
+		text-decoration-color: var(--border-line);
+	}
+	.latest p {
+		color: var(--text-muted);
+		margin: 0 0 1.5rem;
+	}
+	.section-head {
 		display: flex;
-		gap: 1rem;
+		justify-content: space-between;
+		align-items: center;
 		flex-wrap: wrap;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+	}
+	.section-head h2 {
+		margin: 0;
 	}
 	.grid {
 		display: grid;
@@ -66,10 +147,34 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		gap: 1.25rem;
 		margin: 0 0 4rem;
 	}
+	.about {
+		padding: 2.5rem 1.5rem;
+		margin-bottom: 4rem;
+	}
+	.about h2 {
+		margin: 0 0 0.75rem;
+	}
+	.about p {
+		color: var(--text-muted);
+		max-width: 60ch;
+		margin: 0 0 1.5rem;
+	}
 	.topics {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.75rem;
 		margin-bottom: 4rem;
+	}
+	.closing {
+		color: var(--text-muted);
+		font-style: italic;
+		text-align: center;
+		/* Collapses with the 4rem gaps above (About) and below (footer) to leave 2.5rem each side */
+		margin: -2.5rem 0;
+	}
+	@media (max-width: 720px) {
+		.hero {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

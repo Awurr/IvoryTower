@@ -3,28 +3,94 @@ import { getCollection } from 'astro:content';
 import FormattedDate from '../../components/FormattedDate.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { postUrl } from '../../lib/posts';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const categories = [
+	...new Set(posts.flatMap((post) => (post.data.category ? [post.data.category] : []))),
+].sort();
+const tabs = [{ label: 'all', value: '' }, ...categories.map((c) => ({ label: c, value: c }))];
 ---
 
 <BaseLayout title={`Writing · ${SITE_TITLE}`} description={SITE_DESCRIPTION}>
 	<h1 class="holo-text">Archive</h1>
+
+	{
+		categories.length > 0 && (
+			<div class="tabs" role="group" aria-label="Filter by category">
+				{tabs.map((tab, i) => (
+					<button class="btn-reset tab" type="button" data-category={tab.value} aria-pressed={i === 0 ? 'true' : 'false'}>
+						<span class="bracket tab-bracket">
+							<span class="bracket-line" />
+							<span class:list={['bracket-box', i === 0 ? 'holo' : 'plain']}>
+								<span>{tab.label}</span>
+							</span>
+							<span class="bracket-line" />
+						</span>
+					</button>
+				))}
+			</div>
+		)
+	}
+
 	<ul class="archive glow-panel glow-v">
 		{
 			posts.map((post) => (
-				<li>
-					<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+				<li data-category={post.data.category ?? ''}>
+					<a href={postUrl(post)}>{post.data.title}</a>
 					<FormattedDate date={post.data.pubDate} />
 				</li>
 			))
 		}
 	</ul>
 </BaseLayout>
+<script>
+	// Category tabs: filter archive rows client-side; the active tab lives in the URL hash.
+	const tabs = [...document.querySelectorAll<HTMLButtonElement>('.tab')];
+	const rows = [...document.querySelectorAll<HTMLLIElement>('.archive li')];
+
+	function select(category: string) {
+		if (!tabs.some((tab) => tab.dataset.category === category)) category = '';
+		for (const tab of tabs) {
+			const active = tab.dataset.category === category;
+			tab.setAttribute('aria-pressed', String(active));
+			const box = tab.querySelector('.bracket-box')!;
+			box.classList.toggle('holo', active);
+			box.classList.toggle('plain', !active);
+		}
+		for (const row of rows) {
+			row.hidden = category !== '' && row.dataset.category !== category;
+		}
+	}
+
+	const fromHash = () => decodeURIComponent(location.hash.slice(1));
+
+	for (const tab of tabs) {
+		tab.addEventListener('click', () => {
+			const category = tab.dataset.category ?? '';
+			history.replaceState(null, '', category ? `#${encodeURIComponent(category)}` : location.pathname);
+			select(category);
+		});
+	}
+	window.addEventListener('hashchange', () => select(fromHash()));
+	select(fromHash());
+</script>
 <style>
 	h1 {
-		margin-bottom: 2rem;
+		margin-bottom: 1.5rem;
+	}
+	.tabs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-bottom: 1.5rem;
+	}
+	.tab-bracket .bracket-box {
+		font-size: 13px;
+		font-weight: 700;
+		padding: 6px 12px;
 	}
 	.archive {
 		list-style: none;
@@ -38,7 +104,11 @@ const posts = (await getCollection('blog')).sort(
 		padding: 1rem 0;
 		border-bottom: 1px solid var(--border-faint);
 	}
-	li:last-child {
+	li[hidden] {
+		display: none;
+	}
+	/* No divider under the last visible row */
+	li:not(:has(~ li:not([hidden]))) {
 		border-bottom: none;
 	}
 	li a {

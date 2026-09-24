@@ -2,6 +2,7 @@
 title: "My First Post"
 description: "Testing out the new blog."
 pubDate: "2026-09-20"
+heroImage: '../../assets/blog-placeholder-4.jpg'
 ---
 
 ## Hello world

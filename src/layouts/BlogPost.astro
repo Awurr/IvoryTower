@@ -7,7 +7,8 @@ import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage, tags = [] } = Astro.props;
+const { title, subtitle, description, pubDate, updatedDate, heroImage, tags = [], category } =
+	Astro.props;
 ---
 
 <BaseLayout title={title} description={description} image={heroImage}>
@@ -24,9 +25,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags = [] } = Astro
 				}
 			</div>
 			<h1 class="holo-text">{title}</h1>
+			{subtitle && <p class="subtitle">{subtitle}</p>}
 			{
-				tags.length > 0 && (
+				(category || tags.length > 0) && (
 					<div class="tags">
+						{category && <Bracket href={`/blog/#${encodeURIComponent(category)}`}>{category}</Bracket>}
 						{tags.map((tag) => (
 							<Bracket variant="plain">{tag}</Bracket>
 						))}
@@ -48,6 +51,11 @@ const { title, description, pubDate, updatedDate, heroImage, tags = [] } = Astro
 		margin-bottom: 0.75rem;
 		color: var(--text-faint);
 		font-size: 0.9rem;
+	}
+	.subtitle {
+		color: var(--text-muted);
+		font-size: 1.2rem;
+		margin: 0.25rem 0 0;
 	}
 	.last-updated-on {
 		font-style: italic;
