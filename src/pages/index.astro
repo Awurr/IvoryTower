@@ -1,6 +1,16 @@
 ---
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+import aboutGray from '../assets/art/About.Gray.png';
+import aboutHolo from '../assets/art/About.Holo.png';
+import closingLeftGray from '../assets/art/ClosingLeft.Gray.png';
+import closingLeftHolo from '../assets/art/ClosingLeft.Holo.png';
+import closingRightGray from '../assets/art/ClosingRight.Gray.png';
+import closingRightHolo from '../assets/art/ClosingRight.Holo.png';
+import recentGray from '../assets/art/Recent.Gray.png';
+import recentHolo from '../assets/art/Recent.Holo.png';
+import titleGray from '../assets/art/Title.Gray.png';
+import titleHolo from '../assets/art/Title.Holo.png';
 import Bracket from '../components/Bracket.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import HeroArt from '../components/HeroArt.astro';
@@ -21,9 +31,12 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<section class="hero" style={latestWidth && `--latest-w: ${latestWidth}`}>
-		<div class="intro glow-panel glow-h">
-			<h1 class="holo-text">ivory tower</h1>
-			<p>{SITE_DESCRIPTION}</p>
+		<div class="hero-side">
+			<div class="intro glow-panel glow-h">
+				<h1 class="holo-text">ivory tower</h1>
+				<p>{SITE_DESCRIPTION}</p>
+			</div>
+			<HeroArt class="deco" gray={titleGray} holo={titleHolo} maxScale={2} />
 		</div>
 
 		{
@@ -57,6 +70,7 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 			<section class="recent">
 				<div class="section-head">
 					<h2 class="section-title holo-text">Recent writing</h2>
+					<HeroArt class="deco recent-art" gray={recentGray} holo={recentHolo} maxScale={2} />
 					<Bracket size="button" href="/blog">All writing</Bracket>
 				</div>
 				<div class="grid">
@@ -66,10 +80,13 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		)
 	}
 
-	<section class="about glow-panel glow-h">
-		<h2 class="holo-text">About this website</h2>
-		<p>Hi! I'm <i>Nora (she/they)</i> and this is my blog, <i>Ivory Tower</i>. I made this website to escape social media and to have real discussions about the digital world.</p>
-		<Bracket size="button" href="/about">More about my blog</Bracket>
+	<section class="about glow-panel glow-h" style={`--about-art-w: ${aboutGray.width * 2}px`}>
+		<div>
+			<h2 class="holo-text">About this website</h2>
+			<p>Hi! I'm <i>Nora (she/they)</i> and this is my blog, <i>Ivory Tower</i>. I made this website to escape social media and to have real discussions about the digital world.</p>
+			<Bracket size="button" href="/about">More about my blog</Bracket>
+		</div>
+		<HeroArt gray={aboutGray} holo={aboutHolo} maxScale={2} />
 	</section>
 
 	{
@@ -85,15 +102,30 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		)
 	}
 
-	<p class="closing">From me, to you. &lt;3</p>
+	<div class="closing">
+		<HeroArt class="deco" gray={closingLeftGray} holo={closingLeftHolo} maxScale={2} />
+		<p>From me, to you. &lt;3</p>
+		<HeroArt class="deco" gray={closingRightGray} holo={closingRightHolo} maxScale={2} />
+	</div>
 </BaseLayout>
 <style>
 	.hero {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, var(--latest-w, 1.15fr));
 		gap: 2.5rem;
-		align-items: center;
-		margin-bottom: 4rem;
+		margin-bottom: 2.5rem;
+	}
+	/* Title block pinned to the top, tower art along the bottom */
+	.hero-side {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 1.5rem;
+	}
+	/* Nudge the tower right, off the column edge (a whole number of 2x art pixels) */
+	.hero-side :global(.deco) {
+		position: relative;
+		left: 6px;
 	}
 	.intro {
 		padding: 1.5rem 0;
@@ -152,6 +184,10 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 	.section-head h2 {
 		margin: 0;
 	}
+	.section-head :global(.recent-art) {
+		flex: 1;
+		min-width: 0;
+	}
 	.grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -159,7 +195,11 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		margin: 0 0 4rem;
 	}
 	.about {
-		padding: 2.5rem 1.5rem;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) var(--about-art-w);
+		gap: 1.5rem;
+		align-items: center;
+		padding: 1.5rem;
 		margin-bottom: 4rem;
 	}
 	.about h2 {
@@ -177,15 +217,32 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		margin-bottom: 4rem;
 	}
 	.closing {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		gap: 1.5rem;
+		align-items: center;
+		/* Collapses with the 4rem gaps above (About) and below (footer) to leave 1.5rem each side */
+		margin: -2.5rem 0;
+	}
+	.closing p {
 		color: var(--text-muted);
 		font-style: italic;
 		text-align: center;
-		/* Collapses with the 4rem gaps above (About) and below (footer) to leave 2.5rem each side */
-		margin: -2.5rem 0;
+		margin: 0;
 	}
 	@media (max-width: 720px) {
 		.hero {
 			grid-template-columns: 1fr;
+		}
+		.about {
+			grid-template-columns: 1fr;
+		}
+		.closing {
+			grid-template-columns: 1fr;
+		}
+		/* No room for the decorative strips on phones */
+		:global(.deco) {
+			display: none;
 		}
 	}
 </style>
