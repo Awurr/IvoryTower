@@ -32,9 +32,9 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
 	<section class="hero" style={latestWidth && `--latest-w: ${latestWidth}`}>
 		<div class="hero-side">
-			<div class="intro glow-panel glow-h">
-				<h1 class="holo-text">ivory tower</h1>
+			<div class="intro">
 				<p>{SITE_DESCRIPTION}</p>
+				<h1 class="holo-text">ivory tower</h1>
 			</div>
 			<HeroArt class="deco" gray={titleGray} holo={titleHolo} maxScale={2} />
 		</div>
@@ -112,32 +112,29 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 	.hero {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, var(--latest-w, 1.15fr));
-		gap: 2.5rem;
+		/* Leaves the left column 260px: room for the 2x tower plus its side rules */
+		gap: 1.5rem;
 		margin-bottom: 2.5rem;
 	}
-	/* Title block pinned to the top, tower art along the bottom */
+	/* Title block sitting just above the tower, both along the bottom of the column */
 	.hero-side {
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
-		gap: 1.5rem;
-	}
-	/* Nudge the tower right, off the column edge (a whole number of 2x art pixels) */
-	.hero-side :global(.deco) {
-		position: relative;
-		left: 6px;
+		justify-content: flex-end;
+		gap: 1rem;
+		padding: 1rem 0 2.5rem;
 	}
 	.intro {
-		padding: 1.5rem 0;
+		padding: 0 1.75rem;
 	}
 	.intro h1 {
-		margin: 0 0 0.75rem;
+		margin: 0;
 	}
 	.intro p {
 		color: var(--text-muted);
 		font-size: 1.05rem;
 		max-width: 40ch;
-		margin: 0;
+		margin: 0 0 0.25rem;
 	}
 	.latest {
 		padding: 1.5rem 0;
