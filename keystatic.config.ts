@@ -1,5 +1,5 @@
 import { collection, config, fields } from '@keystatic/core';
-import { wrapper } from '@keystatic/core/content-components';
+import { block, wrapper } from '@keystatic/core/content-components';
 
 // Local-only editor for blog posts: run `npm run dev` and open /keystatic.
 // Saves plain .mdx files into src/content/blog, which Astro reads as usual.
@@ -7,13 +7,14 @@ import { wrapper } from '@keystatic/core/content-components';
 // Every frontmatter key in src/content.config.ts must have a field here:
 // Keystatic rewrites the whole frontmatter on save, so unknown keys would be lost.
 
-// Picks an existing file in the project; stored as a root-relative path such as
-// 'src/assets/art/Test.Gray.png' (content.config.ts converts it for Astro).
-const artLayer = (label: string, layer: 'Gray' | 'Holo') =>
+// Picks an existing file in src/assets/art or any subfolder; stored as a
+// root-relative path such as 'src/assets/art/Test.Gray.png' (content.config.ts
+// converts it for Astro).
+const artLayer = (label: string, layer: 'Gray' | 'Holo', isRequired = false) =>
 	fields.pathReference({
 		label,
-		pattern: `src/assets/art/*.${layer}.png`,
-		validation: { isRequired: false },
+		pattern: `src/assets/art/**/*.${layer}.png`,
+		validation: { isRequired },
 	});
 
 export default config({
@@ -79,9 +80,36 @@ export default config({
 				}),
 				content: fields.mdx({
 					label: 'Content',
+					options: {
+						// Toolbar image button: uploads go to src/assets/images/blog/<slug>/ and
+						// the post links them relative to its own file, so Astro optimizes them
+						image: {
+							directory: 'src/assets/images/blog',
+							publicPath: '../../assets/images/blog/',
+						},
+					},
 					// Blocks available from the editor's insert menu. Each must also be in
 					// src/components/mdx.ts so the site can render it.
 					components: {
+						HoloArt: block({
+							label: 'Holo art',
+							description: 'Two-layer pixel art from src/assets/art, with the shimmer.',
+							schema: {
+								gray: artLayer('Gray layer', 'Gray', true),
+								holo: artLayer('Holo layer', 'Holo', true),
+								scale: fields.select({
+									label: 'Max scale',
+									description: 'Drops to a smaller whole number if it would not fit.',
+									options: [
+										{ label: '3x (pixels match the border lines)', value: '3' },
+										{ label: '2x', value: '2' },
+										{ label: '1x', value: '1' },
+									],
+									defaultValue: '3',
+								}),
+								caption: fields.text({ label: 'Caption' }),
+							},
+						}),
 						Quote: wrapper({
 							label: 'Quote',
 							description: 'A quote with an attribution line underneath.',

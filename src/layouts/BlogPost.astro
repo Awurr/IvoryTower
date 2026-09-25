@@ -92,6 +92,10 @@ const shownCategory = hidden ? undefined : category;
 	.prose :global(p) {
 		margin-bottom: 1.5em;
 	}
+	/* Images inserted in posts: centered, never wider than the text column */
+	.prose :global(img) {
+		margin-inline: auto;
+	}
 	/* Room above headings to separate sections; more for the larger levels */
 	.prose :global(:is(h1, h2)) {
 		margin-top: 3.5rem;
