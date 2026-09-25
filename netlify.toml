@@ -1,0 +1,8 @@
+# Netlify build settings (https://docs.netlify.com/configure-builds/file-based-configuration/)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Match local development (see "engines" in package.json)
+  NODE_VERSION = "24"

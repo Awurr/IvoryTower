@@ -21,7 +21,7 @@ const hiddenPaths = readdirSync(BLOG_DIR)
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://example.com',
+    site: 'https://awurr.com',
     integrations: [
       mdx(),
       sitemap({ filter: (page) => !hiddenPaths.some((path) => page.endsWith(path)) }),

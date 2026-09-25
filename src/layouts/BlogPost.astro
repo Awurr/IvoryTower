@@ -92,9 +92,11 @@ const shownCategory = hidden ? undefined : category;
 	.prose :global(p) {
 		margin-bottom: 1.5em;
 	}
-	.prose :global(h2),
-	.prose :global(h3),
-	.prose :global(h4) {
-		margin-top: 2.25rem;
+	/* Room above headings to separate sections; more for the larger levels */
+	.prose :global(:is(h1, h2)) {
+		margin-top: 3.5rem;
+	}
+	.prose :global(:is(h3, h4, h5, h6)) {
+		margin-top: 2.75rem;
 	}
 </style>
