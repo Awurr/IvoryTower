@@ -1,14 +1,29 @@
 ---
-import headerGray from '../assets/art/Header.Gray.png';
-import headerHolo from '../assets/art/Header.Holo.png';
+import homeGray from '../assets/art/HeaderHome.Gray.png';
+import homeHolo from '../assets/art/HeaderHome.Holo.png';
+import postGray from '../assets/art/HeaderPost.Gray.png';
+import postHolo from '../assets/art/HeaderPost.Holo.png';
+import writingGray from '../assets/art/HeaderWriting.Gray.png';
+import writingHolo from '../assets/art/HeaderWriting.Holo.png';
 import { SITE_TITLE } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 import HeroArt from './HeroArt.astro';
+
+// Header art depends on the page: home (2x), the /blog/ archive (3x), and
+// everything else, i.e. posts and /about/ (3x). At 3x one art pixel matches
+// the 3px rule width.
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const art =
+	path === '/'
+		? { gray: homeGray, holo: homeHolo, maxScale: 2 }
+		: path === '/blog'
+			? { gray: writingGray, holo: writingHolo, maxScale: 3 }
+			: { gray: postGray, holo: postHolo, maxScale: 3 };
 ---
 
 <header class="glow-panel glow-h">
 	<a class="logo" href="/">{SITE_TITLE}</a>
-	<HeroArt class="header-art" gray={headerGray} holo={headerHolo} maxScale={2} />
+	<HeroArt class="header-art" gray={art.gray} holo={art.holo} maxScale={art.maxScale} />
 	<nav>
 		<HeaderLink href="/">home</HeaderLink>
 		<HeaderLink href="/blog">writing</HeaderLink>

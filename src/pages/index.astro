@@ -23,105 +23,131 @@ const [latest, ...rest] = posts;
 const recent = rest.slice(0, 3);
 // Size the latest-post column so its hero art fits at exactly 2x
 const latestWidth = latest?.data.heroArt ? `${latest.data.heroArt.gray.width * 2}px` : undefined;
+// Keep the About art at the same pixel scale as the latest post's art. On narrow
+// screens the latest art fills the full content width (the `.home` container), so:
+// below 2 art-widths it drops to 1x -> cap the About art at 1x too; below 1
+// art-width it shrinks to fit -> shrink the About art by the same ratio. Inside
+// the About box, the content width is the art's container + 48px of padding.
+const latestArtW = latest?.data.heroArt?.gray.width;
+const aboutMatchCss =
+	latestArtW &&
+	`@container home (width < ${latestArtW * 2}px) { .about-art .art { --max-scale: 1 !important; } }
+	@container home (width < ${latestArtW}px) { .about-art .art { width: calc((100cqw + 48px) * ${aboutGray.width} / ${latestArtW}) !important; } }`;
 const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 ---
 
 <BaseLayout title={SITE_TITLE} description={SITE_DESCRIPTION}>
-	<section class="hero" style={latestWidth && `--latest-w: ${latestWidth}`}>
-		<div class="hero-side">
-			<div class="intro">
-				<p>{SITE_DESCRIPTION}</p>
-				<h1 class="holo-text">ivory tower</h1>
+	<div class="home">
+		<section class="hero" style={latestWidth && `--latest-w: ${latestWidth}`}>
+			<div class="hero-side">
+				<div class="intro">
+					<p>{SITE_DESCRIPTION}</p>
+					<h1 class="holo-text">ivory tower</h1>
+				</div>
+				<HeroArt class="deco tower-art" gray={titleGray} holo={titleHolo} maxScale={2} />
 			</div>
-			<HeroArt class="deco" gray={titleGray} holo={titleHolo} maxScale={2} />
-		</div>
+
+			{
+				latest && (
+					<article class="latest glow-panel glow-h">
+						<Bracket class="latest-tag">latest</Bracket>
+						{latest.data.heroArt ? (
+							<a class="latest-art" href={postUrl(latest)} tabindex="-1" aria-hidden="true">
+								<HeroArt gray={latest.data.heroArt.gray} holo={latest.data.heroArt.holo} />
+							</a>
+						) : (
+							latest.data.heroImage && (
+								<a href={postUrl(latest)} tabindex="-1" aria-hidden="true">
+									<Image width={720} height={360} src={latest.data.heroImage} alt="" />
+								</a>
+							)
+						)}
+						<FormattedDate date={latest.data.pubDate} />
+						<h2>
+							<a href={postUrl(latest)}>{latest.data.title}</a>
+						</h2>
+						<p>{latest.data.description}</p>
+						<Bracket size="button" href={postUrl(latest)}>Read the latest</Bracket>
+					</article>
+				)
+			}
+		</section>
 
 		{
-			latest && (
-				<article class="latest glow-panel glow-h">
-					<Bracket class="latest-tag">latest</Bracket>
-					{latest.data.heroArt ? (
-						<a class="latest-art" href={postUrl(latest)} tabindex="-1" aria-hidden="true">
-							<HeroArt gray={latest.data.heroArt.gray} holo={latest.data.heroArt.holo} />
-						</a>
-					) : (
-						latest.data.heroImage && (
-							<a href={postUrl(latest)} tabindex="-1" aria-hidden="true">
-								<Image width={720} height={360} src={latest.data.heroImage} alt="" />
-							</a>
-						)
-					)}
-					<FormattedDate date={latest.data.pubDate} />
-					<h2>
-						<a href={postUrl(latest)}>{latest.data.title}</a>
-					</h2>
-					<p>{latest.data.description}</p>
-					<Bracket size="button" href={postUrl(latest)}>Read the latest</Bracket>
-				</article>
+			recent.length > 0 && (
+				<section class="recent">
+					<div class="section-head">
+						<h2 class="section-title holo-text">Recent writing</h2>
+						<HeroArt class="deco recent-art" gray={recentGray} holo={recentHolo} maxScale={2} />
+						<Bracket size="button" href="/blog">All writing</Bracket>
+					</div>
+					<div class="grid">
+						{recent.map((post) => <PostCard post={post} />)}
+					</div>
+				</section>
 			)
 		}
-	</section>
 
-	{
-		recent.length > 0 && (
-			<section class="recent">
-				<div class="section-head">
-					<h2 class="section-title holo-text">Recent writing</h2>
-					<HeroArt class="deco recent-art" gray={recentGray} holo={recentHolo} maxScale={2} />
-					<Bracket size="button" href="/blog">All writing</Bracket>
-				</div>
-				<div class="grid">
-					{recent.map((post) => <PostCard post={post} />)}
-				</div>
-			</section>
-		)
-	}
+		<section class="about glow-panel glow-h" style={`--about-art-w: ${aboutGray.width * 2}px`}>
+			<div class="about-text">
+				<h2 class="holo-text">About this website</h2>
+				<p>Hi! I'm <i>Nora (she/they)</i> and this is my blog, <i>Ivory Tower</i>. I made this website to escape social media and to have real discussions about the digital world.</p>
+				<Bracket size="button" href="/about">More about my blog</Bracket>
+			</div>
+			<div class="about-art">
+				<HeroArt gray={aboutGray} holo={aboutHolo} maxScale={2} />
+			</div>
+			{aboutMatchCss && <style is:inline set:html={aboutMatchCss} />}
+		</section>
 
-	<section class="about glow-panel glow-h" style={`--about-art-w: ${aboutGray.width * 2}px`}>
-		<div>
-			<h2 class="holo-text">About this website</h2>
-			<p>Hi! I'm <i>Nora (she/they)</i> and this is my blog, <i>Ivory Tower</i>. I made this website to escape social media and to have real discussions about the digital world.</p>
-			<Bracket size="button" href="/about">More about my blog</Bracket>
+		{
+			topics.length > 0 && (
+				<>
+					<h2 class="section-title holo-text">Browse by topic</h2>
+					<div class="topics">
+						{topics.map((topic) => (
+							<Bracket>{topic}</Bracket>
+						))}
+					</div>
+				</>
+			)
+		}
+
+		<div class="closing">
+			<HeroArt class="deco" gray={closingLeftGray} holo={closingLeftHolo} maxScale={2} />
+			<p>From me, to you. &lt;3</p>
+			<HeroArt class="deco" gray={closingRightGray} holo={closingRightHolo} maxScale={2} />
 		</div>
-		<HeroArt gray={aboutGray} holo={aboutHolo} maxScale={2} />
-	</section>
-
-	{
-		topics.length > 0 && (
-			<>
-				<h2 class="section-title holo-text">Browse by topic</h2>
-				<div class="topics">
-					{topics.map((topic) => (
-						<Bracket>{topic}</Bracket>
-					))}
-				</div>
-			</>
-		)
-	}
-
-	<div class="closing">
-		<HeroArt class="deco" gray={closingLeftGray} holo={closingLeftHolo} maxScale={2} />
-		<p>From me, to you. &lt;3</p>
-		<HeroArt class="deco" gray={closingRightGray} holo={closingRightHolo} maxScale={2} />
 	</div>
 </BaseLayout>
 <style>
+	/* Measured by the About-art scale matching above */
+	.home {
+		container: home / inline-size;
+	}
 	.hero {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, var(--latest-w, 1.15fr));
-		/* Leaves the left column 260px: the 2x tower (244px) plus a little breathing room */
+		/* Leaves the left column 260px: exactly the 2x tower art (130px wide) */
 		gap: 1.5rem;
 		margin-bottom: 2.5rem;
 	}
-	/* Title block sitting just above the tower, both along the bottom of the column */
+	/* The tower art fills the column behind the title. It's pinned to the bottom so
+	   the tower never moves; when the column (which matches the latest panel's
+	   height) is shorter than the art, the faded sky at the top is trimmed. */
 	.hero-side {
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-		gap: 1rem;
-		padding: 1rem 0 2.5rem;
+		position: relative;
+		overflow: hidden;
+		padding-top: 2.125rem;
+	}
+	.hero-side :global(.tower-art) {
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0;
 	}
 	.intro {
+		position: relative;
+		z-index: 1; /* in front of the tower */
 		padding: 0 1.75rem;
 	}
 	.intro h1 {
@@ -189,12 +215,25 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		margin: 0 0 4rem;
 	}
 	.about {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) var(--about-art-w);
-		gap: 1.5rem;
-		align-items: center;
+		position: relative;
 		padding: 1.5rem;
 		margin-bottom: 4rem;
+	}
+	/* Art sits behind the text on the right, reaching about halfway across */
+	.about-art {
+		position: absolute;
+		inset-block: 0;
+		right: 1.5rem;
+		width: var(--about-art-w);
+		display: flex;
+		align-items: center;
+	}
+	.about-art :global(.hero-art) {
+		flex: 1;
+	}
+	.about-text {
+		position: relative;
+		z-index: 1; /* in front of the art */
 	}
 	.about h2 {
 		margin: 0 0 0.75rem;
@@ -228,8 +267,11 @@ const topics = [...new Set(posts.flatMap((post) => post.data.tags))].sort();
 		.hero {
 			grid-template-columns: 1fr;
 		}
-		.about {
-			grid-template-columns: 1fr;
+		/* Too narrow to sit behind the text: show it below instead */
+		.about-art {
+			position: static;
+			width: auto;
+			margin-top: 1.5rem;
 		}
 		.closing {
 			grid-template-columns: 1fr;

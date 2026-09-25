@@ -39,10 +39,13 @@ const { gray, holo, fill = false, maxScale = 3, class: className } = Astro.props
 		/* Fallback for browsers without round(): fit the column (may blur slightly) */
 		width: min(100%, calc(var(--art-w) * var(--max-scale)));
 		/* Largest whole multiple of the art width that fits, capped at --max-scale.
-		   If even 1x doesn't fit (very narrow phones), shrink to fit instead. */
+		   If even 1x doesn't fit (very narrow phones), shrink to fit instead.
+		   --fit adds 0.01px because 100cqw can land a hair under the true width
+		   (e.g. 402px computes as 401.99999…), which would round down a whole step. */
+		--fit: calc(100cqw + 0.01px);
 		width: min(
-			100cqw,
-			max(var(--art-w), round(down, min(100cqw, calc(var(--art-w) * var(--max-scale))), var(--art-w)))
+			var(--fit),
+			max(var(--art-w), round(down, min(var(--fit), calc(var(--art-w) * var(--max-scale))), var(--art-w)))
 		);
 	}
 	.fill .art {
