@@ -72,7 +72,8 @@ export default config({
 				),
 				heroImage: fields.pathReference({
 					label: 'Hero image (social previews)',
-					description: 'Used for link previews, and as the hero when there is no hero art.',
+					description:
+						'Used for link previews, and as the hero when there is no hero art. Save images directly in src/assets/ to see them here.',
 					// Top level of src/assets only, so the art layers don't clutter the list
 					pattern: 'src/assets/*.{jpg,jpeg,png,webp}',
 				}),

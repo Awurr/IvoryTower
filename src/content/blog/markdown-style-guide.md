@@ -4,7 +4,6 @@ subtitle: 'Every element, styled'
 description: 'Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.'
 category: 'hidden'
 pubDate: '2024-06-19'
-heroImage: '../../assets/blog-placeholder-1.jpg'
 heroArt:
   gray: '../../assets/art/Test.Gray.png'
   holo: '../../assets/art/Test.Holo.png'
@@ -44,7 +43,7 @@ Itatur? Quiatae cullecum rem ent aut odis in re eossequodi nonsequ idebis ne sap
 
 ### Output
 
-![blog placeholder](../../assets/blog-placeholder-about.jpg)
+![Pixel art sketch](../../assets/art/Test.Gray.png)
 
 ## Blockquotes
 
