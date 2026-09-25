@@ -1,6 +1,7 @@
 ---
 // Renders the about post from src/content/blog/about.mdx
 import { getEntry, render } from 'astro:content';
+import { mdxComponents } from '../components/mdx';
 import BlogPost from '../layouts/BlogPost.astro';
 import { ABOUT_ID } from '../lib/posts';
 
@@ -10,5 +11,5 @@ const { Content } = await render(post);
 ---
 
 <BlogPost {...post.data}>
-	<Content />
+	<Content components={mdxComponents} />
 </BlogPost>

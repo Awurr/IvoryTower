@@ -1,0 +1,37 @@
+---
+// Quote block with an optional attribution line. Available in every post as
+// <Quote attribution="...">…</Quote> (registered in keystatic.config.ts and
+// passed to <Content components={...}> wherever posts are rendered).
+interface Props {
+	attribution?: string;
+}
+
+const { attribution } = Astro.props;
+---
+
+<blockquote>
+	<slot />
+	{
+		attribution && (
+			<footer>
+				— <cite>{attribution}</cite>
+			</footer>
+		)
+	}
+</blockquote>
+
+<style>
+	/* The quote text uses the global blockquote styles. Post pages space
+	   paragraphs relative to their (large) quote font, which pushed the
+	   attribution far below, so keep it tucked under the last line. */
+	blockquote > :global(p:last-of-type) {
+		margin-bottom: 0;
+	}
+	/* Matches the small gray <cite> style from global.css */
+	footer {
+		margin-top: 0.5rem;
+		color: var(--text-faint);
+		font-family: var(--font-body);
+		font-size: 0.9rem;
+	}
+</style>

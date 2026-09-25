@@ -12,6 +12,9 @@ const { date } = Astro.props;
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric',
+			// Frontmatter dates like 2026-09-24 mean midnight UTC; formatting in the
+			// local timezone would show the previous day in the Americas
+			timeZone: 'UTC',
 		})
 	}
 </time>

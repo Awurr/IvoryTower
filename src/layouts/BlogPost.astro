@@ -4,15 +4,19 @@ import type { CollectionEntry } from 'astro:content';
 import Bracket from '../components/Bracket.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import HeroArt from '../components/HeroArt.astro';
+import { HIDDEN_CATEGORY } from '../lib/posts';
 import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
 const { title, subtitle, description, pubDate, updatedDate, heroImage, heroArt, tags = [], category } =
 	Astro.props;
+const hidden = category === HIDDEN_CATEGORY;
+// Hidden posts don't show their category: it would link to an archive tab that doesn't exist
+const shownCategory = hidden ? undefined : category;
 ---
 
-<BaseLayout title={title} description={description} image={heroImage}>
+<BaseLayout title={title} description={description} image={heroImage} noindex={hidden}>
 	<article>
 		<div class="title">
 			<div class="date">
@@ -28,9 +32,11 @@ const { title, subtitle, description, pubDate, updatedDate, heroImage, heroArt, 
 			<h1 class="holo-text">{title}</h1>
 			{subtitle && <p class="subtitle">{subtitle}</p>}
 			{
-				(category || tags.length > 0) && (
+				(shownCategory || tags.length > 0) && (
 					<div class="tags">
-						{category && <Bracket href={`/blog/#${encodeURIComponent(category)}`}>{category}</Bracket>}
+						{shownCategory && (
+							<Bracket href={`/blog/#${encodeURIComponent(shownCategory)}`}>{shownCategory}</Bracket>
+						)}
 						{tags.map((tag) => (
 							<Bracket variant="plain">{tag}</Bracket>
 						))}
